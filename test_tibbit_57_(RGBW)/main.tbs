@@ -1,0 +1,235 @@
+'***********************************************************************************************************
+'			Test app for Tibbit #57 (FPGA Tibbit) in the smart RGBW LED (SK6812RGBW)
+'***********************************************************************************************************
+
+'- Place the FPGA Tibbit into S1 of TPP2 or TPP3 board.
+
+'- Connect a string (strip) of SK6812RGBW LEDs (the LEDs are connected in the daisy-chain fashion).
+
+'- Set the NUM_LEDS constant to the actual number of LEDs attached.
+
+'- Set the pattern_mode to one of the pattern_modes values -- your LEDs will behave differently depending on the mode. 
+
+'- Adjust the LED_OUTPUT_DELAY - it affects how fast the LED pattern is changing. Longer LED chains require sending more data, so the delay will have to be set to a smaller value.
+
+'- Set the pattern_mode to one of the pattern_modes values.
+
+'- Run the app and enjoy the color show.
+
+'====================================================================
+include "global.tbh"
+
+Const NUM_LEDS=144								'<===================== SET THE CORRECT NUMBER OF CONNECTED LEDS HERE
+
+Const LED_OUTPUT_DELAY=0						'<===================== SET THE PATTERN DELAY (generally, set smaller delay for larger LED counts) 
+
+Enum pattern_modes
+	PATTERN_1,	'All LEDs set to the same color, the color will gradually change from R to G, from G to B, and from B to R.
+	PATTERN_2,	'A moving pattern of RGB colors.
+	PATTERN_3,	'White LEDs all set to the same brightness, and the brightness gradually changes between minimum and maximum.
+	PATTERN_4
+end enum
+
+Dim pattern_mode as pattern_modes=PATTERN_3		'<===================== SET THE DESIRED PATTERN MODE
+
+enum phases
+	PH_RED_TO_GREEN,
+	PH_GREEN_TO_BLUE,
+	PH_BLUE_TO_RED,
+	PH_INCREASING,
+	PH_DECREASING
+end enum
+
+dim phase as phases
+
+'====================================================================
+sub on_sys_init()
+	select case tbt57_sled_init()
+	case TBT57_FILE_NOT_ATTACHED:
+		sys.debugprint("FPGA configuration file not attached or empty. Execution halted."+CR_LF)
+		goto loop1
+	
+	case TBT57_INIT_FAILURE:
+		sys.debugprint("Tibbit initialization failure. Execution halted."+CR_LF)	
+		goto loop1
+	
+	case TBT57_NO_SSI_AVAILABLE:
+		sys.debugprint("SSI channel could not be allocated. Execution halted."+CR_LF)
+		pat.play("R~",PL_PAT_CANINT)
+loop1:	while 1
+		wend
+	end select
+
+	pat.play("G~",PL_PAT_CANINT)
+	
+	select case pattern_mode
+	case PATTERN_1:
+		'All LEDs set to the same color, the color is moving from R to G, from G to B, and from B to R.
+		dim red as byte=255
+		dim green as byte=0
+		dim blue as byte=0
+		dim f as word
+		dim color as string(4)
+		
+		phase=PH_RED_TO_GREEN
+		while 1
+			for f=0 to LED_OUTPUT_DELAY
+			next f
+			
+			while tbt57_sled_check_ready()=NO
+			wend	
+				
+			tbt57_sled_data_start()
+			color=chr(green)+chr(red)+chr(blue)+chr(0)
+			for f=1 to NUM_LEDS
+				tbt57_sled_send_string(color)
+			next f
+						
+			tbt57_sled_end_and_display()
+			
+			select case phase
+			case PH_RED_TO_GREEN:
+				red=red-1
+				green=green+1
+				if green=255 then phase=PH_GREEN_TO_BLUE	
+
+			case PH_GREEN_TO_BLUE:
+				green=green-1
+				blue=blue+1
+				if blue=255 then phase=PH_BLUE_TO_RED
+				
+			case PH_BLUE_TO_RED:
+				blue=blue-1
+				red=red+1
+				if red=255 then phase=PH_RED_TO_GREEN
+				
+			end select
+
+			doevents
+		wend
+
+	case PATTERN_2:
+		'A moving pattern of RGB colors.
+		dim red as byte=250
+		dim green as byte=0
+		dim blue as byte=0
+		dim red_temp,green_temp,blue_temp as byte
+		dim f as word
+		dim phase_temp as phases
+		
+		phase=PH_RED_TO_GREEN
+		while 1
+			for f=0 to LED_OUTPUT_DELAY
+			next f
+			
+			while tbt57_sled_check_ready()=NO
+			wend	
+
+			red_temp=red
+			green_temp=green
+			blue_temp=blue
+			phase_temp=phase
+				
+			tbt57_sled_data_start()
+								
+			for f=1 to NUM_LEDS
+				tbt57_sled_send_byte(green_temp)
+				tbt57_sled_send_byte(red_temp)
+				tbt57_sled_send_byte(blue_temp)
+				tbt57_sled_send_byte(0)
+				
+				select case phase_temp
+				case PH_RED_TO_GREEN:
+					red_temp=red_temp-10
+					green_temp=green_temp+10
+					if green_temp=250 then phase_temp=PH_GREEN_TO_BLUE	
+
+				case PH_GREEN_TO_BLUE:
+					green_temp=green_temp-10
+					blue_temp=blue_temp+10
+					if blue_temp=250 then phase_temp=PH_BLUE_TO_RED
+					
+				case PH_BLUE_TO_RED:
+					blue_temp=blue_temp-10
+					red_temp=red_temp+10
+					if red_temp=250 then phase_temp=PH_RED_TO_GREEN
+					
+				end select
+				
+				if f=1 then
+					red=red_temp
+					green=green_temp
+					blue=blue_temp
+					phase=phase_temp
+				end if
+				
+			next f
+						
+			tbt57_sled_end_and_display()
+			
+			doevents
+		wend
+	
+	case PATTERN_3:
+		'White LEDs all set to the same brightness, and the brightness gradually changing between minimum and maximum.
+		dim white as byte=0
+		dim f as word
+		
+		phase=PH_INCREASING
+		while 1
+			for f=0 to LED_OUTPUT_DELAY
+			next f
+			
+			while tbt57_sled_check_ready()=NO
+			wend	
+			
+			tbt57_sled_data_start()
+											
+			for f=1 to NUM_LEDS
+				tbt57_sled_send_byte(white)
+				tbt57_sled_send_byte(white)
+				tbt57_sled_send_byte(white)
+				tbt57_sled_send_byte(white)
+			next f
+						
+			tbt57_sled_end_and_display()
+			
+			select case phase
+			case PH_INCREASING:
+				white=white+1
+				if white=255 then phase=PH_DECREASING	
+
+			case PH_DECREASING:
+				white=white-1
+				if white=0 then phase=PH_INCREASING
+
+			end select
+			
+			doevents
+		wend
+	
+	case PATTERN_4:
+		dim f as byte
+		
+		tbt57_sled_data_start()
+		for f=1 to 100
+			tbt57_sled_send_byte(0)
+			tbt57_sled_send_byte(0)
+			tbt57_sled_send_byte(0)
+			tbt57_sled_send_byte(0)
+		next f
+		tbt57_sled_end_and_display()
+
+		while tbt57_sled_check_ready()=NO
+		wend	
+
+		tbt57_sled_data_start()
+		for f=1 to 15
+			tbt57_sled_send_byte(60)
+			tbt57_sled_send_byte(60)
+			tbt57_sled_send_byte(60)
+			tbt57_sled_send_byte(0)
+		next f
+		tbt57_sled_end_and_display()
+	end select
+end sub
