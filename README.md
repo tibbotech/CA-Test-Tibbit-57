@@ -4,13 +4,13 @@
 
 ###### Rolling Color
 
-
+<br />
 
 [![Rolling Color](https://i.vimeocdn.com/video/589204335_640.webp)](https://vimeo.com/180845015)
 
 ###### Shifting Color
 
-
+<br />
 
 You will need:
 
@@ -30,7 +30,7 @@ In the smart LED configuration, Tibbit #57 can control a string of daisy-chained
 
 Smart LEDs are controlled via a special 1-wire protocol. Each LED has a DIN (data in) and DOUT (data out) pins. The DIN pin of the first LED in the chain is connected to the IO1 line of the FPGA Tibbit. The DOUT of the first LED is connected to the DIN of the second LED, the DOUT of the second LED — to the DIN of the third LED, and so on.
 
-
+<br />
 
 
 
@@ -38,7 +38,7 @@ Smart LEDs are controlled via a special 1-wire protocol. Each LED has a DIN (dat
 
 
 
-
+<br />
 
 Depending on the number of LEDs you are connecting, you may be able to power them from your TPS, or you may need to use an external +5V power supply. R, G, and B emitters of each LED consume up to 9mA each, the white emitter consumes up to 18 mA. Count the available current and choose the right power source!
 
