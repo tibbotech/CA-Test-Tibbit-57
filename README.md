@@ -2,13 +2,15 @@
 
 [![Rolling Color](https://i.vimeocdn.com/video/589204310_640.jpg)](https://vimeo.com/180845016)
 
-#### Rolling Color
+###### Rolling Color
 
 
 
 [![Rolling Color](https://i.vimeocdn.com/video/589204335_640.webp)](https://vimeo.com/180845015)
 
-#### Shifting Color
+###### Shifting Color
+
+
 
 You will need:
 
@@ -30,7 +32,11 @@ Smart LEDs are controlled via a special 1-wire protocol. Each LED has a DIN (dat
 
 
 
+
+
 ![](READMEImages/tibbit_57_smart_led.png)
+
+
 
 
 
