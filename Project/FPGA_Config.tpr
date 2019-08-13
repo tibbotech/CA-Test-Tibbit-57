@@ -1,0 +1,105 @@
+[project]
+version = 1
+platform = TPP3W(G2)
+src_lib_ver = 2_01_03
+name = FPGA_Config
+output = FPGA_Config.tpc
+debug = on
+defines = /dLCD_TYPE=SOLOMON_SSD1963 /dOBJECT_LCD=LCD_ENABLED /dOBJECT_FD=FD_ENABLED /dOBJECT_KP=KP_ENABLED /dOBJECT_WLN=WLN_ENABLED
+transport = udp_winpcap
+
+[address1]
+platform = TPP2W
+transport = udp_winpcap
+address = 0.36.119.81.127.45
+
+[address2]
+platform = TPP2W(G2)
+transport = udp_winpcap
+address = 0.36.119.81.150.153
+
+[address3]
+platform = TPP2N
+transport = udp_winpcap
+address = 
+
+[file1]
+path = main.tbs
+type = basic
+format = 
+condition = 
+locked = no
+location = 
+
+[file2]
+path = global.tbh
+type = header
+format = 
+condition = 
+locked = no
+location = 
+
+[file3]
+path = device.tbs
+type = basic
+format = 
+condition = 
+locked = no
+location = 
+
+[file4]
+path = ssi\trunk\ssi.tbh
+type = header
+format = 
+condition = 
+locked = yes
+location = commonlib
+
+[file5]
+path = ssi\trunk\ssi.tbs
+type = basic
+format = 
+condition = 
+locked = yes
+location = commonlib
+
+[file6]
+path = tbt57_common.tbh
+type = header
+format = 
+condition = 
+locked = no
+location = project
+
+[file7]
+path = tbt57_common.tbs
+type = basic
+format = 
+condition = 
+locked = no
+location = project
+
+[file8]
+path = tbt57_sled.tbh
+type = header
+format = 
+condition = 
+locked = no
+location = project
+
+[file9]
+path = tbt57_sled.tbs
+type = basic
+format = 
+condition = 
+locked = no
+location = project
+
+[file10]
+path = RGBW_Driver_top_bitmap.bin
+type = binary
+format = 
+condition = 
+locked = no
+location = project
+
