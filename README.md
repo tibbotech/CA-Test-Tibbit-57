@@ -1,4 +1,4 @@
-# CA-Test-Tibbit-57
+# Test Application for the FPGA Tibbit (#57) in the Smart LED Controller Configuration
 
 [![Rolling Color](https://i.vimeocdn.com/video/589204310_640.jpg)](https://vimeo.com/180845016)
 
